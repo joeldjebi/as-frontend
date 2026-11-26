@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { canModerate } from '../App';
 import { api, date, dateTime, errText, photoUrl, Shop, SHOP_STATUS, ShopRow, ShopStatus, User } from '../api';
 import { formatPhone } from '../countries';
-import { Avatar, Badge, Card, Empty, Field, Icon, Modal, PageHeader, Search, Segmented, Sheet, useToast } from '../ui';
+import { Avatar, Badge, Card, Empty, Field, Icon, Modal, PageHeader, Search, Segmented, Sheet, Switch, useToast } from '../ui';
 
 type Filter = ShopStatus | 'ALL';
 const ID_LABEL: Record<string, string> = { CNI: 'CNI', PASSPORT: 'Passeport', CONSULAR: 'Carte consulaire', RESIDENCE: 'Carte de séjour' };
@@ -106,6 +106,14 @@ function ShopSheet({ id, me, onClose, onChanged }: { id: string; me: User; onClo
                 {s.status === 'SUSPENDED' && 'Réactivée, elle réapparaît dans l’app.'}
                 {s.status === 'REJECTED' && 'Le vendeur peut corriger son dossier et le renvoyer.'}
               </small>
+            </div>
+          )}
+          {mod && s.status === 'APPROVED' && (
+            <div className="group rows">
+              <div>
+                <div className="grow"><div className="title">Mise en avant</div><small className="muted">Affichée dans « Boutiques à la une » sur l’accueil de l’app</small></div>
+                <Switch checked={s.featured} label={s.featured ? 'Retirer de la une' : 'Mettre à la une'} onChange={(v) => act('featured', v ? `${s.name} est à la une` : `${s.name} n’est plus à la une`, { featured: v })} />
+              </div>
             </div>
           )}
           {s.status === 'DRAFT' && <div className="alert info">Inscription en cours dans l’app : le dossier n’a pas encore été envoyé.</div>}

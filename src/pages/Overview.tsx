@@ -21,10 +21,11 @@ export default function Overview() {
         <Stat icon="building" label="Boutiques en ligne" value={d.shopsApproved} foot={`${d.shopsPending} à vérifier · ${d.shopsDraft} en cours d’inscription`} onClick={() => go('shops')} />
         <Stat icon="people" label="Clients" value={d.customers} foot={`${d.customersWeek} nouveau(x) sur 7 jours`} onClick={() => go('customers')} />
         <Stat icon="tag" label="Revendeurs" value={d.resellers} foot={`${d.resellersPending} demande(s) à vérifier`} onClick={() => go('resellers')} />
-        <Stat icon="box" label="Catégories" value={d.categories} foot="catégories principales actives" onClick={() => go('categories')} />
+        <Stat icon="box" label="Produits en ligne" value={d.products} foot={d.productsReported ? `${d.productsReported} signalé(s) à examiner` : 'aucun signalement'} onClick={() => go('products')} />
+        <Stat icon="overview" label="Catégories" value={d.categories} foot="catégories principales actives" onClick={() => go('categories')} />
       </div>
-      <Card title="Phase 1 · socle" pad>
-        <p className="muted" style={{ margin: 0 }}>Inscription des boutiques et des revendeurs, catalogue de catégories, équipe. Produits, commandes et livraisons LETO arrivent dans les phases suivantes.</p>
+      <Card title="Phases 1 et 2" pad>
+        <p className="muted" style={{ margin: 0 }}>Boutiques, revendeurs, catégories, produits et recherche. Les commandes multi-boutiques et la livraison LETO arrivent en phase 3.</p>
       </Card>
     </>
   );

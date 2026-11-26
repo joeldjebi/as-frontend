@@ -24,7 +24,7 @@ export interface ShopEvent { at: string; action: 'CREATED' | 'SUBMITTED' | 'APPR
 export interface Shop extends Omit<ShopRow, 'ownerName' | 'ownerPhone'> {
   slug: string; description: string | null; lat: number | null; lng: number | null; categoryIds: string[];
   logoUrl: string | null; ownerIdType: string | null; ownerIdNumber: string | null; tradeRegister: string | null;
-  hours: { open: string; close: string; days: number[] } | null; isOpen: boolean; reviewedBy: string | null; reviewedAt: string | null;
+  hours: { open: string; close: string; days: number[] } | null; isOpen: boolean; featured: boolean; reviewedBy: string | null; reviewedAt: string | null;
   history: ShopEvent[]; ownerIdFrontLink: string | null; ownerIdBackLink: string | null;
   required: { key: string; label: string; ok: boolean }[];
   owner: { id: string; name: string; phone: string; createdAt: string } | null; categories: { id: string; name: string }[];
@@ -32,7 +32,15 @@ export interface Shop extends Omit<ShopRow, 'ownerName' | 'ownerPhone'> {
 export interface Category { id: string; parentId: string | null; name: string; slug: string; icon: string | null; sortOrder: number; active: boolean; children?: Category[] }
 export interface Dashboard {
   customers: number; customersWeek: number; shopsApproved: number; shopsPending: number; shopsDraft: number;
-  resellersPending: number; resellers: number; categories: number;
+  resellersPending: number; resellers: number; categories: number; products: number; productsReported: number;
+}
+export type ProductStatus = 'ACTIVE' | 'INACTIVE' | 'REMOVED';
+export const PRODUCT_STATUS: Record<ProductStatus, [string, string]> = { ACTIVE: ['Visible', 'green'], INACTIVE: ['Masqué', 'gray'], REMOVED: ['Retiré', 'red'] };
+export interface AdminProduct {
+  id: string; shopId: string; shopName: string; name: string; description: string | null; photos: string[]; price: number;
+  wholesalePrice: number | null; wholesaleMinQty: number | null; status: ProductStatus; moderationNote: string | null; moderatedBy: string | null;
+  reports: number; reportsList: { at: string; by: string; reason: string }[]; views: number; totalStock: number | null; createdAt: string;
+  variants: { id: string; label: string; price: number | null; stock: number | null }[];
 }
 export interface ResellerRow {
   id: string; name: string; phone: string; resellerStatus: ResellerStatus; idPhotoLink: string | null;
