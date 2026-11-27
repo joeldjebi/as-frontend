@@ -6,7 +6,7 @@ import { Badge, Card, Empty, Field, Modal, PageHeader, Segmented, Sheet, useToas
 type Status = 'AWAITING_PAYMENT' | 'PAYMENT_DECLARED' | 'PAID' | 'IN_DELIVERY' | 'DELIVERED' | 'CANCELLED' | 'FAILED';
 type Filter = 'confirm' | 'deliver' | 'live' | 'all';
 
-interface Order {
+export interface Order {
   id: string;
   number: string;
   shopName: string;

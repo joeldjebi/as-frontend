@@ -54,12 +54,14 @@ export const photoUrl = (path: string) => API_URL + path;
 export const initial = (name?: string | null) => (name?.trim()?.[0] ?? '?').toUpperCase();
 
 // ---------- Session ----------
-let token = localStorage.getItem('as_token');
+// Espace boutique (boutique.vite.ci) et back-office de l'équipe : sessions séparées
+const TOKEN_KEY = document.documentElement.dataset.app === 'boutique' ? 'asb_token' : 'as_token';
+let token = localStorage.getItem(TOKEN_KEY);
 export const getToken = () => token;
 export function setToken(t: string | null) {
   token = t;
-  if (t) localStorage.setItem('as_token', t);
-  else localStorage.removeItem('as_token');
+  if (t) localStorage.setItem(TOKEN_KEY, t);
+  else localStorage.removeItem(TOKEN_KEY);
 }
 
 /** Erreur prévue pour l'utilisateur (message clair en français) */
@@ -96,4 +98,15 @@ export async function api<T>(path: string, options: { method?: string; body?: un
   }
   if (!res.ok) throw new UserError(apiMessage(res.status, data, GENERIC_ERROR));
   return data as T;
+}
+
+/** Envoi d'une photo (produit, logo, devanture) : renvoie son adresse /uploads/… */
+export async function uploadPhoto(file: File): Promise<string> {
+  if (file.size > 5 * 1024 * 1024) throw new UserError('Photo trop lourde (5 Mo maximum)');
+  const fd = new FormData();
+  fd.append('file', file);
+  const res = await send(API_URL + '/uploads', { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {}, body: fd });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new UserError(apiMessage(res.status, data, 'Envoi de la photo impossible'));
+  return (data as { url: string }).url;
 }

@@ -6,8 +6,9 @@
   "description": "Adjamé-Smart : back-office (React + Vite)",
   "scripts": {
     "dev": "vite --port 5174",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "build": "tsc --noEmit && vite build && vite build --config vite.boutique.config.ts",
+    "preview": "vite preview",
+    "dev:boutique": "vite --config vite.boutique.config.ts"
   },
   "dependencies": {
     "react": "^18.3.1",

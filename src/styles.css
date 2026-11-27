@@ -894,3 +894,16 @@ small.down { color: var(--green); }
 .text-ok { color: var(--green); font-weight: 600; }
 .text-warn { color: var(--orange); font-weight: 600; }
 section.card + section.card { margin-top: 16px; }
+
+/* Espace boutique : photos du produit, interrupteur avec libellé */
+.pp-photos { display: flex; flex-wrap: wrap; gap: 10px; }
+.pp-photos figure { position: relative; margin: 0; width: 104px; }
+.pp-photos img { width: 104px; height: 104px; object-fit: cover; border-radius: 12px; display: block; background: var(--fill); }
+.pp-x { position: absolute; top: 5px; right: 5px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; display: grid; place-items: center; cursor: pointer; }
+.pp-main, .pp-set { display: block; margin-top: 5px; font-size: 11.5px; text-align: center; width: 100%; }
+.pp-main { color: var(--accent); font-weight: 600; }
+.pp-set { border: 0; background: none; color: var(--secondary); cursor: pointer; padding: 0; }
+.pp-set:hover { color: var(--label); }
+.pp-add { width: 104px; height: 104px; border-radius: 12px; border: 1.5px dashed var(--separator); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--secondary); font-size: 13px; cursor: pointer; }
+.pp-add:hover { border-color: var(--accent); color: var(--accent); }
+.sw-row { display: flex; align-items: center; gap: 10px; min-height: 40px; }
