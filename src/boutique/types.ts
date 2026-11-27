@@ -5,7 +5,7 @@ export interface MyShop {
   id: string; name: string; slug: string; type: 'BOUTIQUE' | 'GROSSISTE'; status: ShopStatus; description: string | null;
   phone: string | null; market: string | null; location: string | null; logoUrl: string | null; storefrontUrl: string | null;
   hours: { open: string; close: string; days: number[] } | null; isOpen: boolean; reviewNote: string | null;
-  prepayPercent: number; payoutMode: 'DIRECT' | 'PLATFORM'; pispiAlias: string | null; categoryIds: string[];
+  prepayPercent: number; payoutMode: 'DIRECT' | 'PLATFORM'; pispiAlias: string | null; categoryIds: string[]; canDirectPayout: boolean;
 }
 
 export interface Variant { id?: string; label: string; price: number | null; stock: number | null }

@@ -114,6 +114,19 @@ function ShopSheet({ id, me, onClose, onChanged }: { id: string; me: User; onClo
                 <div className="grow"><div className="title">Mise en avant</div><small className="muted">Affichée dans « Boutiques à la une » sur l’accueil de l’app</small></div>
                 <Switch checked={s.featured} label={s.featured ? 'Retirer de la une' : 'Mettre à la une'} onChange={(v) => act('featured', v ? `${s.name} est à la une` : `${s.name} n’est plus à la une`, { featured: v })} />
               </div>
+              {me.staffRole === 'SUPER_ADMIN' && (
+                <div>
+                  <div className="grow">
+                    <div className="title">Encaissement direct</div>
+                    <small className="muted">
+                      {s.directPayoutAllowed
+                        ? `Autorisé : la boutique peut se faire payer sur son alias et confirmer elle-même${s.payoutMode === 'DIRECT' ? ` (actif, alias ${s.pispiAlias})` : ' (pas encore activé par la boutique)'}.`
+                        : 'Non autorisé : les clients paient Adjamé-Smart, l’équipe confirme et reverse à la boutique.'}
+                    </small>
+                  </div>
+                  <Switch checked={s.directPayoutAllowed} label={s.directPayoutAllowed ? 'Retirer l’encaissement direct' : 'Autoriser l’encaissement direct'} onChange={(v) => act('direct-payout', v ? `${s.name} peut encaisser directement` : `${s.name} repasse par Adjamé-Smart`, { allowed: v })} />
+                </div>
+              )}
             </div>
           )}
           {s.status === 'DRAFT' && <div className="alert info">Inscription en cours dans l’app : le dossier n’a pas encore été envoyé.</div>}

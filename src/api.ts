@@ -24,7 +24,8 @@ export interface ShopEvent { at: string; action: 'CREATED' | 'SUBMITTED' | 'APPR
 export interface Shop extends Omit<ShopRow, 'ownerName' | 'ownerPhone'> {
   slug: string; description: string | null; lat: number | null; lng: number | null; categoryIds: string[];
   logoUrl: string | null; ownerIdType: string | null; ownerIdNumber: string | null; tradeRegister: string | null;
-  hours: { open: string; close: string; days: number[] } | null; isOpen: boolean; featured: boolean; reviewedBy: string | null; reviewedAt: string | null;
+  hours: { open: string; close: string; days: number[] } | null; isOpen: boolean; featured: boolean;
+  directPayoutAllowed: boolean; payoutMode: 'DIRECT' | 'PLATFORM'; pispiAlias: string | null; reviewedBy: string | null; reviewedAt: string | null;
   history: ShopEvent[]; ownerIdFrontLink: string | null; ownerIdBackLink: string | null;
   required: { key: string; label: string; ok: boolean }[];
   owner: { id: string; name: string; phone: string; createdAt: string } | null; categories: { id: string; name: string }[];

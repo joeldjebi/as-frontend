@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api, dateTime, errText } from '../api';
-import { Badge, Card, Field, Icon, PageHeader, useToast } from '../ui';
+import { Badge, Card, Field, Icon, PageHeader, Switch, useToast } from '../ui';
 
-type Key = 'LETO_API_URL' | 'LETO_API_KEY' | 'LETO_WEBHOOK_SECRET' | 'AS_PISPI_ALIAS' | 'AS_PISPI_NAME';
+type Key = 'LETO_API_URL' | 'LETO_API_KEY' | 'LETO_WEBHOOK_SECRET' | 'AS_PISPI_ALIAS' | 'AS_PISPI_NAME' | 'DIRECT_PAYOUT_ALL';
 interface Item { value: string | null; set: boolean; hint: string | null; source: 'backoffice' | 'env' | 'none'; updatedAt?: string; updatedBy?: string | null }
 interface Data { settings: Record<Key, Item>; webhookUrl: string }
 
@@ -114,6 +114,21 @@ export default function Settings() {
             {input('AS_PISPI_NAME', 'Adjamé-Smart')}
             {meta('AS_PISPI_NAME')}
           </Field>
+        </div>
+      </Card>
+      <Card title="Encaissement direct par les boutiques" pad>
+        <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+          <Switch checked={data?.settings.DIRECT_PAYOUT_ALL.value === 'true'} label="Ouvrir à toutes les boutiques" onChange={async (v) => {
+            try {
+              const d = await api<Data>('/admin/settings', { method: 'PUT', body: { DIRECT_PAYOUT_ALL: v ? 'true' : 'false' } });
+              setData(d);
+              toast(v ? 'Toutes les boutiques peuvent encaisser directement' : 'Encaissement direct réservé aux boutiques autorisées');
+            } catch (e) { toast(errText(e)); }
+          }} />
+          <div>
+            <strong>{data?.settings.DIRECT_PAYOUT_ALL.value === 'true' ? 'Ouvert à toutes les boutiques' : 'Réservé aux boutiques autorisées'}</strong>
+            <p className="muted" style={{ margin: '2px 0 0', fontSize: 13 }}>Par défaut, Adjamé-Smart encaisse et confirme tous les paiements. Autorisez une boutique précise depuis sa fiche (Boutiques), ou ouvrez à toutes quand la vérification automatique des paiements sera disponible.</p>
+          </div>
         </div>
       </Card>
       <p className="muted" style={{ fontSize: 13 }}>Un champ vidé reprend la valeur du fichier de réglages du serveur (.env). Les clés secrètes ne sont jamais réaffichées.</p>

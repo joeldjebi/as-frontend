@@ -38,7 +38,7 @@ export default function ShopSettings({ shop, onSaved }: { shop: MyShop; onSaved:
   };
 
   const save = async () => {
-    if (payout === 'DIRECT' && !alias.trim()) return toast('Indiquez votre alias PI-SPI pour être payé directement');
+    if (shop.canDirectPayout && payout === 'DIRECT' && !alias.trim()) return toast('Indiquez votre alias PI-SPI pour être payé directement');
     if (!days.length) return toast('Choisissez au moins un jour d’ouverture');
     setBusy(true);
     try {
@@ -47,7 +47,7 @@ export default function ShopSettings({ shop, onSaved }: { shop: MyShop; onSaved:
         body: {
           description: description.trim(), ...(phone.replace(/\D/g, '') ? { phone: phone.replace(/\D/g, '') } : {}), isOpen,
           hours: { open, close, days: [...days].sort() }, ...(logoUrl ? { logoUrl } : {}), ...(storefrontUrl ? { storefrontUrl } : {}),
-          prepayPercent: Number(prepay), pispiAlias: alias.trim(), payoutMode: payout,
+          prepayPercent: Number(prepay), ...(shop.canDirectPayout ? { pispiAlias: alias.trim(), payoutMode: payout } : {}),
         },
       });
       toast('Boutique enregistrée');
@@ -105,15 +105,17 @@ export default function ShopSettings({ shop, onSaved }: { shop: MyShop; onSaved:
               {[10, 20, 30, 40, 50, 60, 70, 80, 90].map((n) => <option key={n} value={n}>Acompte {n} %, le reste à la livraison</option>)}
             </select>
           </Field>
-          <Field label="Encaissement des ventes">
-            <Segmented<'PLATFORM' | 'DIRECT'> value={payout} onChange={setPayout} options={[['PLATFORM', 'Via Adjamé-Smart'], ['DIRECT', 'Directement']]} />
-          </Field>
-          {payout === 'DIRECT' && <Field label="Votre alias PI-SPI" hint="Numéro Mobile Money où les clients vous paient"><input value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="07 01 02 03 04" /></Field>}
+          {shop.canDirectPayout && (
+            <Field label="Encaissement des ventes">
+              <Segmented<'PLATFORM' | 'DIRECT'> value={payout} onChange={setPayout} options={[['PLATFORM', 'Via Adjamé-Smart'], ['DIRECT', 'Directement']]} />
+            </Field>
+          )}
+          {shop.canDirectPayout && payout === 'DIRECT' && <Field label="Votre alias PI-SPI" hint="Numéro Mobile Money où les clients vous paient"><input value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="07 01 02 03 04" /></Field>}
         </div>
         <p className="muted" style={{ margin: '12px 0 0', fontSize: 13 }}>
-          {payout === 'DIRECT'
+          {shop.canDirectPayout && payout === 'DIRECT'
             ? 'Le client vous paie directement. Vous confirmez la réception dans « Commandes » : la livraison VITE part aussitôt.'
-            : 'Le client paie Adjamé-Smart, qui confirme la réception puis vous reverse le montant.'}
+            : 'Les clients paient Adjamé-Smart, qui vérifie et confirme chaque paiement pour vous (la livraison part aussitôt), puis vous reverse le montant. Vous n’avez rien à confirmer.'}
         </p>
       </Card>
     </>
