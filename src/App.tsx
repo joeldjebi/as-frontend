@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { api, getToken, setToken, STAFF_LABEL, User } from './api';
+import { api, API_URL, getToken, setToken, STAFF_LABEL, User } from './api';
+import { connectLive, useNotices, useOrdersRefresh } from './live';
 import Categories from './pages/Categories';
 import Customers from './pages/Customers';
 import Login from './pages/Login';
@@ -11,7 +12,7 @@ import Resellers from './pages/Resellers';
 import Shops from './pages/Shops';
 import Team from './pages/Team';
 import { useTheme } from './theme';
-import { Avatar, BrandMark, Icon, Segmented, ToastProvider } from './ui';
+import { Avatar, BrandMark, Icon, NotifyButton, Segmented, ToastProvider, useToast } from './ui';
 
 export type Route = 'overview' | 'settings' | 'orders' | 'shops' | 'products' | 'resellers' | 'customers' | 'categories' | 'team';
 const HASH: Record<Route, string> = { overview: '', settings: 'reglages', orders: 'commandes', shops: 'boutiques', products: 'produits', resellers: 'revendeurs', customers: 'clients', categories: 'categories', team: 'equipe' };
@@ -37,6 +38,14 @@ function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
   const [route, setRoute] = useState<Route>(fromHash());
   const [theme, setTheme] = useTheme();
   const [pending, setPending] = useState({ shops: 0, resellers: 0, products: 0, orders: 0 });
+  const toast = useToast();
+  // Temps réel : connexion pendant la session, fermée à la déconnexion
+  useEffect(() => {
+    connectLive(API_URL, getToken());
+    return () => connectLive(API_URL, null);
+  }, [me.id]);
+  useOrdersRefresh(() => window.dispatchEvent(new Event('pending:changed')));
+  useNotices('admin', (text) => toast(text, 5000), (id) => { location.hash = `/commandes/${id}`; });
   useEffect(() => {
     const on = () => setRoute(fromHash());
     window.addEventListener('hashchange', on);
@@ -48,7 +57,7 @@ function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
       api<{ counts: { toConfirm: number; toDeliver: number } }>('/orders/admin?status=PAYMENT_DECLARED').then((d) => setPending((p) => ({ ...p, orders: d.counts.toConfirm + d.counts.toDeliver }))).catch(() => {});
     };
     load();
-    const t = window.setInterval(load, 30_000);
+    const t = window.setInterval(load, 60_000);
     window.addEventListener('pending:changed', load);
     return () => { window.clearInterval(t); window.removeEventListener('pending:changed', load); };
   }, []);
@@ -92,6 +101,7 @@ function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
         <div className="theme-switch" title="Apparence">
           <Segmented value={theme} onChange={setTheme} options={[['auto', <Icon key="a" name="auto" size={15} />], ['light', <Icon key="l" name="sun" size={15} />], ['dark', <Icon key="d" name="moon" size={15} />]]} labels={{ auto: 'Automatique', light: 'Clair', dark: 'Sombre' }} />
         </div>
+        <NotifyButton />
         <div className="sidebar-footer">
           <Avatar name={me.name} />
           <div className="who">

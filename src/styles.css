@@ -335,6 +335,8 @@ select { appearance: none; padding-right: 30px; background-image: url("data:imag
 
 /* Choix du thème (barre latérale) */
 .theme-switch { display: flex; padding: 0 8px 10px; margin-top: auto; }
+.notify-hint { color: var(--secondary); font-size: 13px; margin-bottom: 6px; }
+@media (max-width: 900px) { .notify-hint { display: none; } }
 .theme-switch .segmented { width: 100%; }
 .theme-switch .segmented button { flex: 1; display: grid; place-items: center; padding: 5px 0; }
 @media (max-width: 900px) { .theme-switch { padding: 0; } .theme-switch .segmented { width: auto; } .theme-switch .segmented button { padding: 5px 8px; } }

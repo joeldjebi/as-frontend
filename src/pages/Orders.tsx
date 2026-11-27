@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, dateTime, errText, User } from '../api';
 import { formatMoney } from '../countries';
+import { useOrdersRefresh } from '../live';
 import { Badge, Card, Empty, Field, Modal, PageHeader, Segmented, Sheet, useToast } from '../ui';
 
 type Status = 'AWAITING_PAYMENT' | 'PAYMENT_DECLARED' | 'PAID' | 'IN_DELIVERY' | 'DELIVERED' | 'CANCELLED' | 'FAILED';
@@ -42,6 +43,24 @@ export const ORDER_STATUS: Record<Status, [string, string]> = {
   FAILED: ['Livraison impossible', 'red'],
 };
 
+/** Lien direct `#/commandes/<id>` (clic sur une notification) : ouvre la fiche de la commande */
+export function useOpenFromHash(items: Order[] | undefined | null, open: (o: Order) => void) {
+  const [hash, setHash] = useState(location.hash);
+  useEffect(() => {
+    const on = () => setHash(location.hash);
+    window.addEventListener('hashchange', on);
+    return () => window.removeEventListener('hashchange', on);
+  }, []);
+  useEffect(() => {
+    const id = /^#\/commandes\/([^/?]+)/.exec(hash)?.[1];
+    const found = id && items?.find((o) => o.id === id);
+    if (!found) return;
+    open(found);
+    history.replaceState(null, '', '#/commandes');
+    setHash('#/commandes');
+  }, [hash, items, open]);
+}
+
 const canPay = (me: User) => me.staffRole === 'SUPER_ADMIN' || me.staffRole === 'SUPPORT';
 
 /** Équipe : commandes, confirmation des paiements reçus par Adjamé-Smart, relance des livraisons VITE */
@@ -49,12 +68,19 @@ export default function Orders({ me }: { me: User }) {
   const [filter, setFilter] = useState<Filter>('confirm');
   const [data, setData] = useState<Data | null>(null);
   const [open, setOpen] = useState<Order | null>(null);
-  const load = useCallback(() => api<Data>('/orders/admin').then(setData).catch(() => {}), []);
+  const load = useCallback(() => api<Data>('/orders/admin').then((d) => {
+    setData(d);
+    // La fiche ouverte suit les changements en direct
+    setOpen((cur) => (cur ? d.items.find((x) => x.id === cur.id) ?? cur : cur));
+  }).catch(() => {}), []);
   useEffect(() => {
     load();
-    const t = window.setInterval(load, 20_000);
+    // Filet de sécurité : les changements arrivent en temps réel
+    const t = window.setInterval(load, 60_000);
     return () => window.clearInterval(t);
   }, [load]);
+  useOrdersRefresh(load);
+  useOpenFromHash(data?.items, setOpen);
   const c = data?.counts;
   const items = (data?.items ?? []).filter((o) =>
     filter === 'confirm' ? o.status === 'PAYMENT_DECLARED' && o.payment.mode === 'PLATFORM'

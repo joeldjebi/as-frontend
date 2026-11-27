@@ -1,7 +1,8 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react';
-import { api, errText, getToken, setToken, User } from '../api';
+import { api, API_URL, errText, getToken, setToken, User } from '../api';
+import { connectLive, useNotices, useOrdersRefresh } from '../live';
 import { useTheme } from '../theme';
-import { Avatar, BrandMark, Empty, Icon, PhoneInput, Segmented, ToastProvider } from '../ui';
+import { Avatar, BrandMark, Empty, Icon, NotifyButton, PhoneInput, Segmented, ToastProvider, useToast } from '../ui';
 import Dashboard from './Dashboard';
 import ShopOrders from './Orders';
 import ShopProducts from './Products';
@@ -72,6 +73,15 @@ function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
   const [shops, setShops] = useState<MyShop[] | null>(null);
   const [shopId, setShopId] = useState<string | null>(localStorage.getItem(SHOP_KEY));
   const [toConfirm, setToConfirm] = useState(0);
+  const toast = useToast();
+
+  // Temps réel : connexion pendant la session, fermée à la déconnexion
+  useEffect(() => {
+    connectLive(API_URL, getToken());
+    return () => connectLive(API_URL, null);
+  }, [me.id]);
+  useOrdersRefresh(() => window.dispatchEvent(new Event('orders:changed')));
+  useNotices('shop', (text) => toast(text, 5000), (id) => { location.hash = `/commandes/${id}`; });
 
   useEffect(() => {
     const on = () => setRoute(fromHash());
@@ -91,7 +101,7 @@ function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
     const load = () => api<{ status: string; payment: { mode: string } }[]>(`/orders/shop?shopId=${shop.id}`)
       .then((o) => setToConfirm(o.filter((x) => x.status === 'PAYMENT_DECLARED' && x.payment.mode === 'DIRECT').length)).catch(() => {});
     load();
-    const t = window.setInterval(load, 30_000);
+    const t = window.setInterval(load, 60_000);
     window.addEventListener('orders:changed', load);
     return () => { window.clearInterval(t); window.removeEventListener('orders:changed', load); };
   }, [shop]);
@@ -131,6 +141,7 @@ function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
         <div className="theme-switch" title="Apparence">
           <Segmented value={theme} onChange={setTheme} options={[['auto', <Icon key="a" name="auto" size={15} />], ['light', <Icon key="l" name="sun" size={15} />], ['dark', <Icon key="d" name="moon" size={15} />]]} labels={{ auto: 'Automatique', light: 'Clair', dark: 'Sombre' }} />
         </div>
+        <NotifyButton />
         <div className="sidebar-footer">
           <Avatar name={me.name} />
           <div className="who">

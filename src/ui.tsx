@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { initial } from './api';
 import { parsePhone, toE164, useCountries } from './countries';
+import { useNotifyPermission } from './live';
 
 // ============================================================================
 // Icônes (trait fin, façon SF Symbols)
@@ -295,22 +296,35 @@ export function Modal({ title, subtitle, onClose, children, footer }: { title: s
 // Notifications (toast)
 // ============================================================================
 
-const ToastCtx = createContext<(msg: string) => void>(() => {});
+const ToastCtx = createContext<(msg: string, ms?: number) => void>(() => {});
 export const useToast = () => useContext(ToastCtx);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [msg, setMsg] = useState<string | null>(null);
   const timer = useRef<number>();
-  const show = (m: string) => {
+  const show = (m: string, ms = 2600) => {
     setMsg(m);
     window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setMsg(null), 2600);
+    timer.current = window.setTimeout(() => setMsg(null), ms);
   };
   return (
     <ToastCtx.Provider value={show}>
       {children}
       {msg && <div className="toast" role="status">{msg}</div>}
     </ToastCtx.Provider>
+  );
+}
+
+/** Petit lien discret dans la barre latérale : autoriser les notifications du navigateur (sur clic seulement) */
+export function NotifyButton() {
+  const toast = useToast();
+  const { perm, ask } = useNotifyPermission();
+  if (perm !== 'default') return null;
+  return (
+    <button className="nav-item notify-hint" onClick={async () => { await ask(); if (Notification.permission === 'granted') toast('C’est noté : vous serez prévenu même quand l’onglet est en arrière-plan.', 4000); }}>
+      <Icon name="bell" size={16} />
+      Activer les notifications
+    </button>
   );
 }
 

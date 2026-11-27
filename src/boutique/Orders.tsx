@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, dateTime, errText } from '../api';
 import { formatMoney } from '../countries';
-import { Order, ORDER_STATUS } from '../pages/Orders';
+import { useOrdersRefresh } from '../live';
+import { Order, ORDER_STATUS, useOpenFromHash } from '../pages/Orders';
 import { Badge, Card, Empty, Field, Modal, PageHeader, Segmented, Sheet, useToast } from '../ui';
 import { MyShop } from './types';
 
@@ -13,14 +14,21 @@ export default function ShopOrders({ shop }: { shop: MyShop }) {
   const [tab, setTab] = useState<Tab>('todo');
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [open, setOpen] = useState<Order | null>(null);
-  const load = useCallback(() => api<Order[]>(`/orders/shop?shopId=${shop.id}`).then(setOrders).catch(() => setOrders([])), [shop.id]);
+  const load = useCallback(() => api<Order[]>(`/orders/shop?shopId=${shop.id}`).then((list) => {
+    setOrders(list);
+    // La fiche ouverte suit les changements en direct
+    setOpen((cur) => (cur ? list.find((x) => x.id === cur.id) ?? cur : cur));
+  }).catch(() => setOrders((cur) => cur ?? [])), [shop.id]);
   useEffect(() => {
     setOrders(null);
     if (shop.status !== 'APPROVED') { setOrders([]); return; }
     load();
-    const t = window.setInterval(load, 30_000);
+    // Filet de sécurité : les changements arrivent en temps réel
+    const t = window.setInterval(load, 60_000);
     return () => window.clearInterval(t);
   }, [load, shop.status]);
+  useOrdersRefresh(() => { if (shop.status === 'APPROVED') load(); });
+  useOpenFromHash(orders, setOpen);
 
   const all = orders ?? [];
   const count = (t: Tab) => all.filter((o) => inTab(o, t)).length;

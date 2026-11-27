@@ -139,10 +139,10 @@ export const go = (to: string) => { location.hash = to; };
 // ---------- Messages ----------
 export const toasts = store<{ id: number; text: string } | null>(null);
 let tid = 0;
-export function toast(text: string) {
+export function toast(text: string, ms = 2600) {
   const id = ++tid;
   toasts.set({ id, text });
-  setTimeout(() => { if (toasts.get()?.id === id) toasts.set(null); }, 2600);
+  setTimeout(() => { if (toasts.get()?.id === id) toasts.set(null); }, ms);
 }
 
 /** Demande de connexion (ouvre la fenêtre de connexion, puis exécute la suite) */

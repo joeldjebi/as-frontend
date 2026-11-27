@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api, dateTime } from '../api';
 import { formatMoney } from '../countries';
+import { useOrdersRefresh } from '../live';
 import { Order, ORDER_STATUS } from '../pages/Orders';
 import { Badge, Card, Empty, PageHeader, Stat } from '../ui';
 import { goTo } from './App';
@@ -17,13 +18,19 @@ const STATUS_NOTE: Record<string, [string, string] | undefined> = {
 export default function Dashboard({ shop }: { shop: MyShop }) {
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [products, setProducts] = useState<MyProduct[] | null>(null);
+  const loadOrders = useCallback(() => {
+    if (shop.status === 'APPROVED') api<Order[]>(`/orders/shop?shopId=${shop.id}`).then(setOrders).catch(() => setOrders((cur) => cur ?? []));
+    else setOrders([]);
+  }, [shop.id, shop.status]);
+  const loadProducts = useCallback(() => api<MyProduct[]>(`/products/mine?shopId=${shop.id}`).then(setProducts).catch(() => setProducts((cur) => cur ?? [])), [shop.id]);
   useEffect(() => {
     setOrders(null);
     setProducts(null);
-    if (shop.status === 'APPROVED') api<Order[]>(`/orders/shop?shopId=${shop.id}`).then(setOrders).catch(() => setOrders([]));
-    else setOrders([]);
-    api<MyProduct[]>(`/products/mine?shopId=${shop.id}`).then(setProducts).catch(() => setProducts([]));
-  }, [shop]);
+    loadOrders();
+    loadProducts();
+  }, [loadOrders, loadProducts]);
+  // Temps réel : commandes, ventes et stock (une commande retire ou remet du stock)
+  useOrdersRefresh(() => { loadOrders(); loadProducts(); });
 
   const since = Date.now() - 30 * 86400_000;
   const o = orders ?? [];

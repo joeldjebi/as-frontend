@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, dateTime, errText, money, phoneFmt, session, thumb, toast, useApi, useStore } from '../core';
 import { Empty, Icon } from '../ui';
 import { deliveryLabel } from '../delivery';
+import { useLive, useNotifyPermission, useOrdersRefresh } from '../../live';
 
 interface Order {
   id: string; number: string; shopName: string; status: string; deliveryLabel: string | null; createdAt: string;
@@ -23,10 +24,12 @@ const label = (o: Order) => (o.status === 'IN_DELIVERY' && o.deliveryLabel ? o.d
 export function Orders() {
   const { token } = useStore(session);
   const { data, error, reload } = useApi<Order[]>(token ? '/orders/mine' : null);
+  useOrdersRefresh(() => { if (token) reload(); });
   if (!token) return <Empty icon="user" title="Connectez-vous" text="Vos commandes apparaissent ici." action={<a className="btn" href="#/compte">Se connecter</a>} />;
   return (
     <>
       <h1 className="page-title">Mes commandes</h1>
+      <NotifyHint />
       {error ? <Empty icon="info" title="On revient dans un instant" text={error} action={<button className="btn" onClick={reload}>Réessayer</button>} />
         : !data ? <div className="skel" style={{ height: 200, marginTop: 14 }} />
         : !data.length ? <Empty icon="bag" title="Aucune commande" text="Vos commandes et leur livraison apparaîtront ici." action={<a className="btn" href="#/">Découvrir</a>} />
@@ -45,6 +48,17 @@ export function Orders() {
   );
 }
 
+/** Lien discret : être prévenu même quand l'onglet est en arrière-plan (demande sur clic seulement) */
+function NotifyHint() {
+  const { perm, ask } = useNotifyPermission();
+  if (perm !== 'default') return null;
+  return (
+    <button className="btn tinted sm" style={{ marginTop: 8 }} onClick={async () => { await ask(); if (Notification.permission === 'granted') toast('C’est noté : nous vous prévenons à chaque étape de votre commande.', 4000); }}>
+      <Icon name="bell" size={16} /> Me prévenir à chaque étape
+    </button>
+  );
+}
+
 /** Une commande : payer, suivre la livraison */
 export function OrderDetail({ id }: { id: string }) {
   const { token } = useStore(session);
@@ -57,10 +71,12 @@ export function OrderDetail({ id }: { id: string }) {
   useEffect(() => {
     if (!token) return;
     load();
-    const t = setInterval(() => { if (o && ['PAYMENT_DECLARED', 'PAID', 'IN_DELIVERY'].includes(o.status)) load(); }, 15000);
+    // Filet de sécurité lent : les changements arrivent en temps réel
+    const t = setInterval(() => { if (o && ['PAYMENT_DECLARED', 'PAID', 'IN_DELIVERY'].includes(o.status)) load(); }, 60000);
     return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, token, o?.status]);
+  useOrdersRefresh(() => { if (token) load(); }, (p) => p.id === id);
   if (!token) return <Empty icon="user" title="Connectez-vous" action={<a className="btn" href="#/compte">Se connecter</a>} />;
   if (err && !o) return <Empty icon="info" title="Nous retrouvons votre commande" text={err} />;
   if (!o) return <div className="skel" style={{ height: 300, marginTop: 20 }} />;
@@ -169,9 +185,12 @@ function OffersPanel({ orderId, onAccepted }: { orderId: string; onAccepted: () 
   const [counter, setCounter] = useState<{ id: string; value: string } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const load = () => api<Offer[]>(`/orders/mine/${orderId}/offers`).then((r) => setOffers(r ?? [])).catch(() => {});
+  useLive('order:offers', (p) => { if (p.id === orderId) load(); });
+  useLive('resync', () => load());
   useEffect(() => {
     load();
-    const poll = setInterval(load, 5000);
+    // Filet de sécurité : les nouvelles propositions arrivent en temps réel
+    const poll = setInterval(load, 30000);
     const tick = setInterval(() => setNow(Date.now()), 1000);
     return () => { clearInterval(poll); clearInterval(tick); };
     // eslint-disable-next-line react-hooks/exhaustive-deps

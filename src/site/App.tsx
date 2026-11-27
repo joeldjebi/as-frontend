@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { api, authPrompt, cart, cartTotals, errText, go, refreshMe, session, setTheme, theme, thumb, toasts, useRoute, User, useStore } from './core';
+import { api, API, authPrompt, cart, cartTotals, errText, go, refreshMe, session, setTheme, theme, thumb, toast, toasts, useRoute, User, useStore } from './core';
+import { connectLive, useNotices } from '../live';
 import Account from './pages/Account';
 import Cart from './pages/Cart';
 import Catalog from './pages/Catalog';
@@ -13,6 +14,10 @@ import { catIcon, Icon, Modal } from './ui';
 export default function App() {
   const { parts, query } = useRoute();
   useEffect(() => { refreshMe(); }, []);
+  // Temps réel : suivi des commandes sans actualiser (connexion seulement si le client est connecté)
+  const { token } = useStore(session);
+  useEffect(() => { connectLive(API, token); }, [token]);
+  useNotices('customer', (text) => toast(text, 5000), (id) => go(`/commande/${id}`));
   const [a, b] = parts;
   let page;
   if (!a) page = <Home />;
