@@ -122,7 +122,7 @@ export default function Catalog({ kind, arg, query }: { kind: string; arg?: stri
       </div>
 
       <div className="count">{page ? `${total} produit${total > 1 ? 's' : ''}` : ' '}</div>
-      {error && !items.length ? <Empty icon="info" title="Connexion impossible" text={error} action={<button className="btn" onClick={() => load(1, true)}>Réessayer</button>} />
+      {error && !items.length ? <Empty icon="info" title="On revient dans un instant" text={error} action={<button className="btn" onClick={() => load(1, true)}>Réessayer</button>} />
         : !page && loading ? <GridSkeleton />
         : !items.length ? <Empty icon="search" title="Aucun produit" text={active ? 'Retirez des filtres pour voir plus de produits.' : kind === 'recherche' ? `Rien pour « ${q} ». Vérifiez l’orthographe ou essayez un autre mot.` : 'Les boutiques ajoutent leurs produits.'} />
         : <div className="grid">{items.map((p) => <ProductCard key={p.id} p={p} />)}</div>}

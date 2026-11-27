@@ -45,7 +45,7 @@ export interface Address { id: string; label: string; address: string; landmark:
 export const session = store<{ token: string | null; user: User | null }>({ token: null, user: null }, 'as_site_session');
 
 export class ApiError extends Error {}
-const GENERIC = 'Une erreur est survenue. Réessayez dans un instant.';
+const GENERIC = 'Un petit instant : nous finalisons cela pour vous. Réessayez dans quelques secondes.';
 
 export async function api<T>(path: string, opts: { method?: string; body?: unknown } = {}): Promise<T> {
   const token = session.get().token;
@@ -57,7 +57,7 @@ export async function api<T>(path: string, opts: { method?: string; body?: unkno
       body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
     });
   } catch {
-    throw new ApiError('Impossible de joindre Adjamé-Smart. Vérifiez votre connexion.');
+    throw new ApiError('Vous semblez hors connexion. Vérifiez votre réseau, nous vous attendons.');
   }
   const data = await res.json().catch(() => null);
   if (res.status === 401 && token) session.set({ token: null, user: null });

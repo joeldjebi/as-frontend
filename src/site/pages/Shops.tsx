@@ -91,7 +91,7 @@ export function ShopPage({ slug }: { slug: string }) {
     setItems(null);
     api<{ items: Product[]; pages: number }>(`/products?${new URLSearchParams({ shopId: s.id, sort: 'new', limit: '24', ...(shelf ? { categoryId: shelf } : {}) })}`).then((r) => { setItems(r.items); setPage(1); setPages(r.pages); }).catch(() => setItems([]));
   }, [s, shelf]);
-  if (error) return <Empty icon="store" title="Boutique indisponible" text={error} />;
+  if (error) return <Empty icon="store" title="Cette boutique fait une pause" text={error} />;
   if (!s) return <div className="skel" style={{ height: 260, marginTop: 20, borderRadius: 28 }} />;
   const more = () => api<{ items: Product[] }>(`/products?${new URLSearchParams({ shopId: s.id, sort: 'new', limit: '24', page: String(page + 1), ...(shelf ? { categoryId: shelf } : {}) })}`).then((r) => { setItems((o) => [...(o ?? []), ...r.items]); setPage(page + 1); });
   return (

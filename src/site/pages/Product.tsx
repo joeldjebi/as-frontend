@@ -9,7 +9,7 @@ export default function ProductPage({ id }: { id: string }) {
   const [variant, setVariant] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   if (loading && !p) return <div className="product"><div className="skel" style={{ aspectRatio: '4 / 5', borderRadius: 28 }} /><div><div className="skel" style={{ height: 30, width: '70%' }} /><div className="skel" style={{ height: 24, width: '30%', marginTop: 16 }} /></div></div>;
-  if (error || !p) return <Empty icon="info" title="Produit indisponible" text={error ?? undefined} action={<button className="btn" onClick={reload}>Réessayer</button>} />;
+  if (error || !p) return <Empty icon="info" title="Ce produit n’est plus en vitrine" text={error ?? undefined} action={<button className="btn" onClick={reload}>Réessayer</button>} />;
 
   const v = p.variants.find((x) => x.id === variant);
   const price = v?.price ?? p.price;

@@ -105,7 +105,7 @@ export default function Checkout() {
             );
           })()}
 
-          {quoteErr && <div className="banner orange"><Icon name="info" /><div><b>Panier à vérifier</b><p>{quoteErr}</p></div></div>}
+          {quoteErr && <div className="banner orange"><Icon name="info" /><div><b>Votre panier a évolué</b><p>{quoteErr}</p></div></div>}
           {quote?.shops.map((s) => (
             <div key={s.shopId}>
               <div className="gtitle">{s.shopName}</div>

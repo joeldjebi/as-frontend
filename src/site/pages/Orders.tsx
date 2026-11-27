@@ -15,7 +15,7 @@ interface Order {
 
 export const STATUS: Record<string, [string, string]> = {
   AWAITING_PAYMENT: ['À payer', 'var(--accent)'], PAYMENT_DECLARED: ['Paiement en vérification', 'var(--primary)'], PAID: ['Payée · livreur demandé', 'var(--primary)'],
-  IN_DELIVERY: ['En livraison', 'var(--primary)'], DELIVERED: ['Livrée', 'var(--ok)'], CANCELLED: ['Annulée', 'var(--muted)'], FAILED: ['Livraison impossible', 'var(--muted)'],
+  IN_DELIVERY: ['En livraison', 'var(--primary)'], DELIVERED: ['Livrée', 'var(--ok)'], CANCELLED: ['Annulée', 'var(--muted)'], FAILED: ['Nouveau passage à prévoir', 'var(--muted)'],
 };
 const label = (o: Order) => (o.status === 'IN_DELIVERY' && o.deliveryLabel ? o.deliveryLabel : STATUS[o.status]?.[0] ?? o.status);
 
@@ -27,7 +27,7 @@ export function Orders() {
   return (
     <>
       <h1 className="page-title">Mes commandes</h1>
-      {error ? <Empty icon="info" title="Connexion impossible" text={error} action={<button className="btn" onClick={reload}>Réessayer</button>} />
+      {error ? <Empty icon="info" title="On revient dans un instant" text={error} action={<button className="btn" onClick={reload}>Réessayer</button>} />
         : !data ? <div className="skel" style={{ height: 200, marginTop: 14 }} />
         : !data.length ? <Empty icon="bag" title="Aucune commande" text="Vos commandes et leur livraison apparaîtront ici." action={<a className="btn" href="#/">Découvrir</a>} />
         : (
@@ -62,7 +62,7 @@ export function OrderDetail({ id }: { id: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, token, o?.status]);
   if (!token) return <Empty icon="user" title="Connectez-vous" action={<a className="btn" href="#/compte">Se connecter</a>} />;
-  if (err && !o) return <Empty icon="info" title="Commande indisponible" text={err} />;
+  if (err && !o) return <Empty icon="info" title="Nous retrouvons votre commande" text={err} />;
   if (!o) return <div className="skel" style={{ height: 300, marginTop: 20 }} />;
 
   const declare = async () => {
@@ -95,7 +95,7 @@ export function OrderDetail({ id }: { id: string }) {
 
           {o.status === 'AWAITING_PAYMENT' && (
             <>
-              {o.payment.rejectedNote && <div className="banner orange"><Icon name="info" /><div><b>Paiement non reçu</b><p>{o.payment.rejectedNote}. Vérifiez puis renvoyez la référence.</p></div></div>}
+              {o.payment.rejectedNote && <div className="banner orange"><Icon name="info" /><div><b>Paiement à confirmer</b><p>Nous n’avons pas encore retrouvé votre paiement ({o.payment.rejectedNote}). Vérifiez la référence puis renvoyez-la.</p></div></div>}
               <div className="gtitle">Payer par Mobile Money</div>
               <div className="group on-bg">
                 <div className="cell"><div className="grow">Montant</div><b style={{ fontSize: 18 }}>{money(o.dueNow)}</b></div>
@@ -115,7 +115,7 @@ export function OrderDetail({ id }: { id: string }) {
             </>
           )}
           {o.status === 'PAYMENT_DECLARED' && <div className="banner green"><Icon name="clock" /><div><b>Paiement en vérification</b><p>{o.payment.payee} vérifie la réception (réf. {o.payment.reference}). La livraison partira dès la confirmation.</p></div></div>}
-          {o.status === 'PAID' && <div className="banner green"><Icon name="check" /><div><b>Paiement confirmé</b><p>{d.error ? 'La demande de livreur va être relancée.' : 'Un livreur VITE est demandé pour récupérer votre colis.'}</p></div></div>}
+          {o.status === 'PAID' && <div className="banner green"><Icon name="check" /><div><b>Paiement confirmé</b><p>Nous recherchons le meilleur livreur pour récupérer votre colis.</p></div></div>}
           {(o.status === 'IN_DELIVERY' || o.status === 'DELIVERED') && (
             <>
               {o.status === 'IN_DELIVERY' && d.status === 'PENDING' && <OffersPanel orderId={o.id} onAccepted={load} />}
@@ -129,7 +129,7 @@ export function OrderDetail({ id }: { id: string }) {
             </>
           )}
           {o.status === 'CANCELLED' && <div className="banner"><Icon name="close" /><div><b>Commande annulée</b><p>{o.cancelReason}</p></div></div>}
-          {o.status === 'FAILED' && <div className="banner orange"><Icon name="info" /><div><b>Livraison impossible</b><p>Le livreur n’a pas pu vous remettre le colis. La boutique va vous contacter.</p></div></div>}
+          {o.status === 'FAILED' && <div className="banner orange"><Icon name="info" /><div><b>Nouveau passage à prévoir</b><p>Le livreur n’a pas pu vous remettre le colis : la boutique vous contacte pour convenir d’un nouveau passage.</p></div></div>}
 
           <div className="gtitle">Articles</div>
           <div className="group on-bg">
