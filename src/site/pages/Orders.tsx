@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, dateTime, errText, money, phoneFmt, session, thumb, toast, useApi, useStore } from '../core';
 import { Empty, Icon } from '../ui';
+import { deliveryLabel } from '../delivery';
 
 interface Order {
   id: string; number: string; shopName: string; status: string; deliveryLabel: string | null; createdAt: string;
@@ -8,6 +9,7 @@ interface Order {
   goodsTotal: number; dueNow: number; dueOnDelivery: number; recipientName: string; recipientPhone: string; cancelReason: string | null;
   address: { label: string; address: string; landmark: string | null };
   payment: { mode: string; alias: string | null; payee: string; reference?: string | null; rejectedNote?: string | null };
+  vehicleType?: string; speed?: string;
   delivery: { status?: string; trackingUrl?: string | null; price?: number | null; confirmationCode?: string | null; error?: string | null; driver?: { name: string; phone?: string | null; plate?: string | null } | null };
 }
 
@@ -116,7 +118,8 @@ export function OrderDetail({ id }: { id: string }) {
           {o.status === 'PAID' && <div className="banner green"><Icon name="check" /><div><b>Paiement confirmé</b><p>{d.error ? 'La demande de livreur va être relancée.' : 'Un livreur VITE est demandé pour récupérer votre colis.'}</p></div></div>}
           {(o.status === 'IN_DELIVERY' || o.status === 'DELIVERED') && (
             <>
-              <div className="gtitle">Livraison VITE</div>
+              {o.status === 'IN_DELIVERY' && d.status === 'PENDING' && <OffersPanel orderId={o.id} onAccepted={load} />}
+              <div className="gtitle">Livraison VITE · {deliveryLabel(o.vehicleType, o.speed)}</div>
               <div className="group on-bg">
                 <div className="cell"><span className="ico" style={{ background: 'var(--primary)' }}><Icon name="moto" size={17} /></span><div className="grow">{o.deliveryLabel ?? 'En livraison'}{!d.driver && <small>Un livreur va accepter la course</small>}</div></div>
                 {d.driver && <div className="cell"><span className="ico" style={{ background: 'var(--teal)' }}><Icon name="user" size={17} /></span><div className="grow">{d.driver.name}<small>{d.driver.plate ?? ''}</small></div>{d.driver.phone && <a className="btn tinted sm" href={`tel:${d.driver.phone}`}>Appeler</a>}</div>}
@@ -150,6 +153,79 @@ export function OrderDetail({ id }: { id: string }) {
           <p>{o.recipientName}<br /><span className="muted">{phoneFmt(o.recipientPhone.startsWith('+') ? o.recipientPhone : `+225${o.recipientPhone}`)}</span><br /><span className="muted">{[o.address.address, o.address.landmark].filter(Boolean).join(' · ')}</span></p>
         </aside>
       </div>
+    </>
+  );
+}
+
+interface Offer {
+  id: string; price: number; counterPrice: number | null; awaiting: 'CLIENT' | 'DRIVER'; minCounter: number; expiresAt: string;
+  driver: { name: string }; etaMin: number | null;
+}
+
+/** Propositions des livreurs pendant la recherche : accepter, refuser ou faire son offre */
+function OffersPanel({ orderId, onAccepted }: { orderId: string; onAccepted: () => void }) {
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [now, setNow] = useState(Date.now());
+  const [counter, setCounter] = useState<{ id: string; value: string } | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const load = () => api<Offer[]>(`/orders/mine/${orderId}/offers`).then((r) => setOffers(r ?? [])).catch(() => {});
+  useEffect(() => {
+    load();
+    const poll = setInterval(load, 5000);
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    return () => { clearInterval(poll); clearInterval(tick); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]);
+
+  const act = async (o: Offer, action: 'accept' | 'decline' | 'counter', price?: number) => {
+    setBusy(o.id);
+    try {
+      await api(`/orders/mine/${orderId}/offers/${o.id}/${action}`, { method: 'POST', ...(price ? { body: { price } } : {}) });
+      if (action === 'accept') { toast(`${o.driver.name} arrive pour ${money(o.price)}`); onAccepted(); }
+      if (action === 'counter') toast(`Votre offre est envoyée à ${o.driver.name}`);
+      setCounter(null);
+    } catch (e) { toast(errText(e)); } finally { setBusy(null); load(); }
+  };
+
+  const live = offers.filter((o) => Date.parse(o.expiresAt) > now);
+  if (!live.length) return null;
+  return (
+    <>
+      <div className="gtitle">Propositions des livreurs</div>
+      <div className="group on-bg">
+        {live.map((o) => {
+          const left = Math.max(0, Math.round((Date.parse(o.expiresAt) - now) / 1000));
+          const max = o.price - 50;
+          const open = counter?.id === o.id;
+          return (
+            <div key={o.id} style={{ padding: '12px 16px', borderBottom: '.5px solid var(--sep)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="ico" style={{ background: 'var(--primary)' }}><Icon name="moto" size={17} /></span>
+                <div className="grow"><b>{o.driver.name}</b><small className="muted" style={{ display: 'block' }}>{[o.etaMin ? `à ~${o.etaMin} min de la boutique` : null, `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')} pour répondre`].filter(Boolean).join(' · ')}</small></div>
+                <b style={{ fontSize: 18 }}>{money(o.price)}</b>
+              </div>
+              {o.counterPrice != null ? (
+                <p className="muted" style={{ fontSize: 13, margin: '8px 0 0' }}>Votre offre : <b>{money(o.counterPrice)}</b> · en attente de la réponse du livreur</p>
+              ) : open ? (
+                <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <input inputMode="numeric" value={counter!.value} onChange={(e) => setCounter({ id: o.id, value: e.target.value })} style={{ flex: '1 1 120px', height: 40, borderRadius: 10, border: '1px solid var(--line)', padding: '0 12px', background: 'var(--card)', color: 'var(--ink)' }} aria-label="Votre prix" />
+                  <button className="btn sm" disabled={busy === o.id} onClick={() => act(o, 'counter', Number(counter!.value.replace(/\D/g, '')))}>Envoyer</button>
+                  <button className="btn gray sm" onClick={() => setCounter(null)}>Annuler</button>
+                  <small className="muted" style={{ flexBasis: '100%' }}>Entre {money(o.minCounter)} et {money(max)}</small>
+                </div>
+              ) : null}
+              {!open && (
+                <div style={{ display: 'flex', gap: 8, marginTop: 10, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                  <button className="btn gray sm" disabled={busy === o.id} onClick={() => act(o, 'decline')}>Refuser</button>
+                  {o.counterPrice == null && max >= o.minCounter && <button className="btn tinted sm" onClick={() => setCounter({ id: o.id, value: String(Math.round((o.minCounter + max) / 100) * 50) })}>Faire une offre</button>}
+                  <button className="btn sm" disabled={busy === o.id} onClick={() => act(o, 'accept')}>Accepter {money(o.price)}</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <p className="gfoot">Un livreur propose un autre prix que l’estimation. Acceptez, refusez ou faites votre offre : la course reste proposée aux autres livreurs.</p>
     </>
   );
 }

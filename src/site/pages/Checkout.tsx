@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { api, cart, errText, fold, go, money, refreshMe, session, toast, useStore } from '../core';
 import MapPicker from '../MapPicker';
 import { Empty, Icon, Modal } from '../ui';
+import { DeliveryOption, SPEEDS, Speed, Vehicle, VEHICLES } from '../delivery';
 
 interface Quote {
   shops: { shopId: string; shopName: string; goodsTotal: number; dueNow: number; dueOnDelivery: number; deliveryFeeEstimate: number | null; payment: { mode: string; payee: string } }[];
-  goodsTotal: number; dueNow: number; dueOnDelivery: number; deliveryFeeEstimate: number | null;
+  goodsTotal: number; dueNow: number; dueOnDelivery: number; deliveryFeeEstimate: number | null; deliveryOptions: DeliveryOption[];
 }
 
 /** Finaliser : adresse (carte), destinataire, récapitulatif par boutique, confirmation */
@@ -20,6 +21,8 @@ export default function Checkout() {
   const [quoteErr, setQuoteErr] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [vehicle, setVehicle] = useState<Vehicle>('MOTO');
+  const [speed, setSpeed] = useState<Speed>('STANDARD');
   const lines = items.map((i) => ({ productId: i.productId, variantId: i.variantId, qty: i.qty }));
   const addresses = user?.addresses ?? [];
 
@@ -27,9 +30,9 @@ export default function Checkout() {
   useEffect(() => {
     if (!token || !items.length) return;
     setQuoteErr(null);
-    api<Quote>('/orders/quote', { method: 'POST', body: { items: lines, ...(addressId ? { addressId } : {}) } }).then(setQuote).catch((e) => setQuoteErr(errText(e)));
+    api<Quote>('/orders/quote', { method: 'POST', body: { items: lines, vehicleType: vehicle, speed, ...(addressId ? { addressId } : {}) } }).then(setQuote).catch((e) => setQuoteErr(errText(e)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, addressId, items]);
+  }, [token, addressId, items, vehicle, speed]);
 
   if (!token) return <Empty icon="user" title="Connectez-vous" text="La commande se fait avec votre compte Adjamé-Smart." action={<a className="btn" href="#/panier">Retour au panier</a>} />;
   if (!items.length) return <Empty icon="bag" title="Votre panier est vide" action={<a className="btn" href="#/">Découvrir</a>} />;
@@ -40,7 +43,7 @@ export default function Checkout() {
     if (digits.length !== 10) return toast('Téléphone du destinataire : 10 chiffres');
     setBusy(true);
     try {
-      const r = await api<{ orders: { id: string }[] }>('/orders', { method: 'POST', body: { items: lines, addressId, recipientName: name.trim(), recipientPhone: digits, ...(note.trim() ? { note: note.trim() } : {}) } });
+      const r = await api<{ orders: { id: string }[] }>('/orders', { method: 'POST', body: { items: lines, addressId, vehicleType: vehicle, speed, recipientName: name.trim(), recipientPhone: digits, ...(note.trim() ? { note: note.trim() } : {}) } });
       cart.set([]);
       toast('Commande enregistrée');
       go(r.orders.length === 1 ? `/commande/${r.orders[0].id}` : '/commandes');
@@ -75,6 +78,32 @@ export default function Checkout() {
             <div className="field"><label htmlFor="rp">Téléphone</label><span className="muted">+225</span><input id="rp" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07 01 02 03 04" /></div>
             <div className="field"><label htmlFor="nt">Note</label><input id="nt" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Pour le livreur (facultatif)" /></div>
           </div>
+
+          {(quote?.deliveryOptions?.length ?? 0) > 0 && (() => {
+            const opts = quote!.deliveryOptions;
+            const vehicles = (Object.keys(VEHICLES) as Vehicle[]).filter((v) => opts.some((o) => o.vehicleType === v));
+            const price = (sp: Speed) => opts.find((o) => o.vehicleType === vehicle && o.speed === sp)?.price;
+            return (
+              <>
+                <div className="gtitle">Livraison</div>
+                {vehicles.length > 1 && (
+                  <div className="seg" style={{ marginBottom: 10 }}>
+                    {vehicles.map((v) => <button key={v} className={vehicle === v ? 'on' : ''} onClick={() => setVehicle(v)}>{VEHICLES[v].label}</button>)}
+                  </div>
+                )}
+                <div className="group on-bg">
+                  {(Object.keys(SPEEDS) as Speed[]).filter((sp) => price(sp) != null).map((sp) => (
+                    <button key={sp} className="cell" onClick={() => setSpeed(sp)}>
+                      <span className={`radio${speed === sp ? ' on' : ''}`} />
+                      <div className="grow">{SPEEDS[sp].label}<small>{SPEEDS[sp].hint}</small></div>
+                      <span className="val">≈ {money(price(sp))}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="gfoot">{VEHICLES[vehicle].hint}. Les frais de livraison sont payés en espèces au livreur. Un livreur peut proposer un autre prix : vous restez libre d’accepter, de refuser ou de faire votre offre.</p>
+              </>
+            );
+          })()}
 
           {quoteErr && <div className="banner orange"><Icon name="info" /><div><b>Panier à vérifier</b><p>{quoteErr}</p></div></div>}
           {quote?.shops.map((s) => (
