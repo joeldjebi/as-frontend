@@ -6,6 +6,7 @@
   <title>Adjamé-Smart · Le marché d’Adjamé, livré chez vous</title>
   <meta name="description" content="Toutes les boutiques et grossistes d’Adjamé dans une app. Commandez, payez par Mobile Money (tout ou un acompte) et faites-vous livrer par VITE partout à Abidjan.">
   <meta name="theme-color" content="#0B6B4F">
+  <script>try{var t=localStorage.getItem('as_site_theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
   <meta property="og:title" content="Adjamé-Smart · Le marché d’Adjamé, livré chez vous">
   <meta property="og:description" content="Boutiques et grossistes d’Adjamé, paiement Mobile Money, livraison VITE.">
   <meta property="og:url" content="https://as.vite.ci/">
@@ -14,11 +15,18 @@
   <style>
     :root {
       --bg: #FFFFFF; --bg-alt: #F2F2F7; --ink: #000000; --muted: #6E6E73; --line: #E5E5EA;
-      --primary: #0B6B4F; --primary-soft: #E2EFEA; --accent: #E8962A; --accent-soft: #FCF0DE; --teal: #2F6F7E;
+      --primary: #0B6B4F; --primary-text: #0B6B4F; --primary-soft: #E2EFEA; --accent: #E8962A; --accent-soft: #FCF0DE; --teal: #2F6F7E;
     }
     @media (prefers-color-scheme: dark) {
-      :root { --bg: #000000; --bg-alt: #1C1C1E; --ink: #F5F5F7; --muted: #A1A1A6; --line: #38383A; --primary-soft: #0F2E25; --accent-soft: #3A2A12; }
+      :root:not([data-theme="light"]) { --bg: #000000; --bg-alt: #1C1C1E; --ink: #F5F5F7; --muted: #A1A1A6; --line: #38383A; --primary-soft: #0F2E25; --primary-text: #5FD3A8; --accent-soft: #3A2A12; color-scheme: dark; }
     }
+    :root[data-theme="dark"] { --bg: #000000; --bg-alt: #1C1C1E; --ink: #F5F5F7; --muted: #A1A1A6; --line: #38383A; --primary-soft: #0F2E25; --primary-text: #5FD3A8; --accent-soft: #3A2A12; color-scheme: dark; }
+    .theme { width: 38px; height: 38px; border-radius: 50%; border: 0; background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+    .theme:hover { background: var(--bg-alt); }
+    nav a.buy { color: var(--primary-text); font-weight: 600; }
+    .actions { display: flex; align-items: center; gap: 6px; }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+    .hero-cta .pill { height: 50px; padding: 0 24px; border-radius: 25px; font-size: 16px; }
     * { box-sizing: border-box; margin: 0; }
     html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
     body { background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; letter-spacing: -0.01em; }
@@ -36,8 +44,8 @@
     nav a:hover { color: var(--ink); }
     .pill { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 20px; font-weight: 600; font-size: 15px; }
     .pill.primary { background: var(--primary); color: #fff; }
-    .pill.ghost { background: var(--primary-soft); color: var(--primary); }
-    @media (max-width: 720px) { nav { display: none; } header .pill { margin-left: auto; } }
+    .pill.ghost { background: var(--primary-soft); color: var(--primary-text); }
+    @media (max-width: 720px) { nav { display: none; } .actions { margin-left: auto; } }
 
     /* Motif wax (à plat) */
     .wax { background-color: var(--primary); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='92' height='80' viewBox='0 0 92 80'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.16' stroke-width='2.2'%3E%3Ccircle cx='23' cy='20' r='13'/%3E%3Cpath d='M69 8l12 12-12 12-12-12z'/%3E%3Cpath d='M23 48l12 12-12 12-12-12z'/%3E%3Ccircle cx='69' cy='60' r='13'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='.16'%3E%3Ccircle cx='23' cy='20' r='5'/%3E%3Ccircle cx='69' cy='60' r='5'/%3E%3Ccircle cx='46' cy='40' r='3'/%3E%3C/g%3E%3C/svg%3E"); }
@@ -47,7 +55,7 @@
     /* Accroche */
     .hero { padding: 64px 0 56px; }
     .hero .wrap { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; }
-    .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary); }
+    .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary-text); }
     .hero h1 { font-size: clamp(38px, 6vw, 60px); margin: 12px 0 18px; }
     .hero h1 em { font-style: normal; color: var(--accent); }
     .hero p.lead { font-size: 19px; color: var(--muted); max-width: 30em; }
@@ -90,7 +98,7 @@
     @media (max-width: 820px) { .bento { grid-template-columns: 1fr; } .tile.big { min-height: 260px; } }
 
     .markets { display: flex; flex-wrap: wrap; gap: 8px; }
-    .markets span { padding: 8px 14px; border-radius: 18px; background: var(--primary-soft); color: var(--primary); font-weight: 600; font-size: 14px; }
+    .markets span { padding: 8px 14px; border-radius: 18px; background: var(--primary-soft); color: var(--primary-text); font-weight: 600; font-size: 14px; }
 
     .sell { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
     .list { list-style: none; padding: 0; display: grid; gap: 14px; }
@@ -116,11 +124,15 @@
     <div class="wrap">
       <a class="brand" href="#top" aria-label="Adjamé-Smart, accueil"><span class="mark">A</span><span>Adjamé<span class="smart">Smart</span></span></a>
       <nav aria-label="Sections">
+        <a class="buy" href="/acheter/">Acheter</a>
         <a href="#comment">Comment ça marche</a>
         <a href="#boutiques">Boutiques</a>
         <a href="#vendre">Vendre</a>
       </nav>
-      <a class="pill primary" href="#app">Télécharger</a>
+      <div class="actions">
+        <button class="theme" id="theme" type="button" aria-label="Changer l’apparence"></button>
+        <a class="pill primary" href="/acheter/">Acheter</a>
+      </div>
     </div>
   </header>
 
@@ -131,6 +143,10 @@
           <div class="eyebrow">Le marché d’Adjamé dans votre poche</div>
           <h1>Toutes les boutiques d’Adjamé, <em>livrées chez vous.</em></h1>
           <p class="lead">Pagnes, téléphones, chaussures, cosmétiques, en détail ou en gros. Commandez dans plusieurs boutiques, payez par Mobile Money et recevez tout chez vous avec VITE.</p>
+          <div class="hero-cta">
+            <a class="pill primary" href="/acheter/">Acheter en ligne</a>
+            <a class="pill ghost" href="/acheter/#/boutiques">Voir les boutiques</a>
+          </div>
           <div class="stores" id="app">
             <a class="store" href="/adjame-smart.apk" download="Adjame-Smart.apk" aria-label="Télécharger l’application Android">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.6 9.48l1.84-3.18a.38.38 0 00-.66-.38l-1.86 3.22a11.5 11.5 0 00-9.84 0L5.22 5.92a.38.38 0 00-.66.38L6.4 9.48A10.8 10.8 0 001 18h22a10.8 10.8 0 00-5.4-8.52zM7 15.25a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5zm10 0a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5z"/></svg>
@@ -213,7 +229,7 @@
         <div class="cta wax">
           <h2>Adjamé arrive chez vous.</h2>
           <p>Installez l’application Adjamé-Smart sur votre téléphone Android. Version iPhone bientôt.</p>
-          <a class="pill" href="/adjame-smart.apk" download="Adjame-Smart.apk">Télécharger l’app Android</a>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="pill" href="/acheter/">Acheter en ligne</a><a class="pill" href="/adjame-smart.apk" download="Adjame-Smart.apk" style="background:rgba(255,255,255,.16);color:#fff">App Android</a></div>
         </div>
       </div>
     </section>
@@ -228,6 +244,27 @@
       <span>© <span id="y">2026</span> Adjamé-Smart</span>
     </div>
   </footer>
-  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+    // Apparence : automatique → clair → sombre (retenue, partagée avec la boutique en ligne)
+    (function () {
+      var btn = document.getElementById('theme');
+      var icons = {
+        auto: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18z" fill="currentColor"/></svg>',
+        light: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+        dark: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg>'
+      };
+      var labels = { auto: 'Apparence automatique', light: 'Apparence claire', dark: 'Apparence sombre' };
+      function current() { try { return localStorage.getItem('as_site_theme') || 'auto'; } catch (e) { return 'auto'; } }
+      function paint() { var t = current(); btn.innerHTML = icons[t]; btn.title = labels[t]; }
+      btn.addEventListener('click', function () {
+        var next = { auto: 'light', light: 'dark', dark: 'auto' }[current()];
+        try { if (next === 'auto') localStorage.removeItem('as_site_theme'); else localStorage.setItem('as_site_theme', next); } catch (e) {}
+        if (next === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = next;
+        paint();
+      });
+      paint();
+    })();
+  </script>
 </body>
 </html>
