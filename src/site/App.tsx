@@ -39,7 +39,7 @@ export default function App() {
           <a href="../">Présentation</a>
           <a href="../adjame-smart.apk" download="Adjame-Smart.apk">App Android</a>
           <a href="https://boutique.vite.ci">Espace boutique</a>
-          <a href="https://www.pexels.com" target="_blank" rel="noreferrer">Photos de démonstration : Pexels</a>
+          <a href="https://pixabay.com" target="_blank" rel="noreferrer">Photos de démonstration : Pixabay</a>
         </div>
       </footer>
       <TabBar active={a ?? ''} />
