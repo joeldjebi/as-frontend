@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Adjamé-Smart · Le marché d’Adjamé, livré chez vous</title>
+  <meta name="description" content="Toutes les boutiques et grossistes d’Adjamé dans une app. Commandez, payez par Mobile Money (tout ou un acompte) et faites-vous livrer par VITE partout à Abidjan.">
+  <meta name="theme-color" content="#0B6B4F">
+  <meta property="og:title" content="Adjamé-Smart · Le marché d’Adjamé, livré chez vous">
+  <meta property="og:description" content="Boutiques et grossistes d’Adjamé, paiement Mobile Money, livraison VITE.">
+  <meta property="og:url" content="https://as.vite.ci/">
+  <meta property="og:site_name" content="Adjamé-Smart">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230B6B4F'/%3E%3Ctext x='32' y='45' font-family='-apple-system,Helvetica,Arial' font-size='38' font-weight='700' text-anchor='middle' fill='white'%3EA%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #FFFFFF; --bg-alt: #F2F2F7; --ink: #000000; --muted: #6E6E73; --line: #E5E5EA;
+      --primary: #0B6B4F; --primary-soft: #E2EFEA; --accent: #E8962A; --accent-soft: #FCF0DE; --teal: #2F6F7E;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #000000; --bg-alt: #1C1C1E; --ink: #F5F5F7; --muted: #A1A1A6; --line: #38383A; --primary-soft: #0F2E25; --accent-soft: #3A2A12; }
+    }
+    * { box-sizing: border-box; margin: 0; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; letter-spacing: -0.01em; }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    h1, h2, h3 { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; letter-spacing: -0.02em; line-height: 1.1; }
+
+    /* En-tête */
+    header { position: sticky; top: 0; z-index: 10; backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); background: color-mix(in srgb, var(--bg) 78%, transparent); border-bottom: 0.5px solid var(--line); }
+    header .wrap { display: flex; align-items: center; gap: 12px; height: 56px; }
+    .brand { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
+    .brand .mark { width: 30px; height: 30px; border-radius: 9px; overflow: hidden; display: grid; place-items: center; color: #fff; font-size: 18px; background: var(--primary); position: relative; }
+    .brand .smart { color: var(--accent); }
+    nav { margin-left: auto; display: flex; gap: 22px; font-size: 14px; color: var(--muted); }
+    nav a:hover { color: var(--ink); }
+    .pill { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 20px; font-weight: 600; font-size: 15px; }
+    .pill.primary { background: var(--primary); color: #fff; }
+    .pill.ghost { background: var(--primary-soft); color: var(--primary); }
+    @media (max-width: 720px) { nav { display: none; } header .pill { margin-left: auto; } }
+
+    /* Motif wax (à plat) */
+    .wax { background-color: var(--primary); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='92' height='80' viewBox='0 0 92 80'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.16' stroke-width='2.2'%3E%3Ccircle cx='23' cy='20' r='13'/%3E%3Cpath d='M69 8l12 12-12 12-12-12z'/%3E%3Cpath d='M23 48l12 12-12 12-12-12z'/%3E%3Ccircle cx='69' cy='60' r='13'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='.16'%3E%3Ccircle cx='23' cy='20' r='5'/%3E%3Ccircle cx='69' cy='60' r='5'/%3E%3Ccircle cx='46' cy='40' r='3'/%3E%3C/g%3E%3C/svg%3E"); }
+    .wax.accent { background-color: var(--accent); }
+    .wax.teal { background-color: var(--teal); }
+
+    /* Accroche */
+    .hero { padding: 64px 0 56px; }
+    .hero .wrap { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; }
+    .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary); }
+    .hero h1 { font-size: clamp(38px, 6vw, 60px); margin: 12px 0 18px; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p.lead { font-size: 19px; color: var(--muted); max-width: 30em; }
+    .stores { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .store { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 18px; border-radius: 14px; background: var(--ink); color: var(--bg); }
+    .store small { display: block; font-size: 11px; opacity: 0.7; line-height: 1.1; }
+    .store b { display: block; font-size: 16px; line-height: 1.2; }
+    .note { margin-top: 12px; font-size: 13px; color: var(--muted); }
+    .phone { justify-self: center; width: min(320px, 100%); aspect-ratio: 9 / 18.5; border-radius: 44px; background: var(--bg-alt); border: 10px solid var(--ink); padding: 18px 14px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 30px 60px rgba(0,0,0,.18); }
+    .phone .top { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+    .phone .top .mark { width: 22px; height: 22px; border-radius: 7px; background: var(--primary); color: #fff; display: grid; place-items: center; font-size: 13px; }
+    .phone .search { height: 34px; border-radius: 10px; background: var(--bg); color: var(--muted); font-size: 12.5px; display: flex; align-items: center; padding: 0 10px; }
+    .phone .banner { border-radius: 18px; padding: 14px; color: #fff; font-weight: 700; font-size: 15px; line-height: 1.2; min-height: 92px; display: flex; align-items: flex-end; }
+    .phone .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; }
+    .phone .card { border-radius: 14px; background: var(--bg); position: relative; overflow: hidden; }
+    .phone .card .img { position: absolute; inset: 0; }
+    .phone .card .price { position: absolute; left: 6px; bottom: 6px; background: rgba(255,255,255,.85); color: #000; font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 9px; }
+    .phone .card .plus { position: absolute; right: 6px; bottom: 6px; width: 20px; height: 20px; border-radius: 50%; background: #000; color: #fff; font-size: 14px; display: grid; place-items: center; line-height: 1; }
+    @media (max-width: 860px) { .hero .wrap { grid-template-columns: 1fr; } .phone { display: none; } .hero { padding-top: 40px; } }
+
+    /* Sections */
+    section { padding: 72px 0; }
+    section.alt { background: var(--bg-alt); }
+    .head { max-width: 640px; margin-bottom: 36px; }
+    .head h2 { font-size: clamp(30px, 4vw, 42px); margin: 8px 0 12px; }
+    .head p { color: var(--muted); font-size: 17px; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .step { background: var(--bg); border-radius: 22px; padding: 24px; }
+    section:not(.alt) .step { background: var(--bg-alt); }
+    .step .n { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-weight: 700; color: #fff; margin-bottom: 16px; }
+    .step h3 { font-size: 19px; margin-bottom: 8px; }
+    .step p { color: var(--muted); font-size: 15px; }
+    @media (max-width: 820px) { .steps { grid-template-columns: 1fr; } }
+
+    .bento { display: grid; grid-template-columns: 1.2fr 1fr; grid-template-rows: auto auto; gap: 14px; }
+    .tile { border-radius: 24px; padding: 26px; color: #fff; min-height: 190px; display: flex; flex-direction: column; justify-content: flex-end; }
+    .tile.big { grid-row: span 2; min-height: 400px; }
+    .tile h3 { font-size: 24px; margin-bottom: 6px; }
+    .tile p { opacity: .88; font-size: 15px; max-width: 26em; }
+    @media (max-width: 820px) { .bento { grid-template-columns: 1fr; } .tile.big { min-height: 260px; } }
+
+    .markets { display: flex; flex-wrap: wrap; gap: 8px; }
+    .markets span { padding: 8px 14px; border-radius: 18px; background: var(--primary-soft); color: var(--primary); font-weight: 600; font-size: 14px; }
+
+    .sell { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    .list { list-style: none; padding: 0; display: grid; gap: 14px; }
+    .list li { display: flex; gap: 12px; align-items: flex-start; }
+    .list li i { flex: 0 0 26px; height: 26px; border-radius: 8px; background: var(--primary); color: #fff; display: grid; place-items: center; font-style: normal; font-size: 14px; font-weight: 700; }
+    .list li b { display: block; }
+    .list li span { color: var(--muted); font-size: 15px; }
+    @media (max-width: 820px) { .sell { grid-template-columns: 1fr; } }
+
+    .cta { border-radius: 28px; padding: 44px 32px; color: #fff; text-align: center; }
+    .cta h2 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 10px; }
+    .cta p { opacity: .9; margin-bottom: 22px; }
+    .cta .pill { background: #fff; color: var(--primary); }
+
+    footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; }
+    footer .brand { color: var(--ink); font-size: 16px; }
+    footer .sp { flex: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="brand" href="#top" aria-label="Adjamé-Smart, accueil"><span class="mark">A</span><span>Adjamé<span class="smart">Smart</span></span></a>
+      <nav aria-label="Sections">
+        <a href="#comment">Comment ça marche</a>
+        <a href="#boutiques">Boutiques</a>
+        <a href="#vendre">Vendre</a>
+      </nav>
+      <a class="pill primary" href="#app">Télécharger</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <div class="eyebrow">Le marché d’Adjamé dans votre poche</div>
+          <h1>Toutes les boutiques d’Adjamé, <em>livrées chez vous.</em></h1>
+          <p class="lead">Pagnes, téléphones, chaussures, cosmétiques, en détail ou en gros. Commandez dans plusieurs boutiques, payez par Mobile Money et recevez tout chez vous avec VITE.</p>
+          <div class="stores" id="app">
+            <a class="store" href="#app" aria-label="Application Android, bientôt disponible">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.6 9.48l1.84-3.18a.38.38 0 00-.66-.38l-1.86 3.22a11.5 11.5 0 00-9.84 0L5.22 5.92a.38.38 0 00-.66.38L6.4 9.48A10.8 10.8 0 001 18h22a10.8 10.8 0 00-5.4-8.52zM7 15.25a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5zm10 0a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5z"/></svg>
+              <span><small>Bientôt sur</small><b>Android</b></span>
+            </a>
+            <a class="store" href="#app" aria-label="Application iPhone, bientôt disponible">
+              <svg width="20" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.47.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.75 2.27-1.6 2.78-.41 6.9 1.15 9.15.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.24-.02 2.02-1.12 2.77-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.39-.92-2.4-3.67zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.28z"/></svg>
+              <span><small>Bientôt sur</small><b>iPhone</b></span>
+            </a>
+          </div>
+          <p class="note">L’application arrive très vite. Les boutiques d’Adjamé s’inscrivent dès maintenant.</p>
+        </div>
+        <div class="phone" aria-hidden="true">
+          <div class="top"><span class="mark">A</span><span>Adjamé<span style="color:var(--accent)">Smart</span></span></div>
+          <div class="search">Rechercher un produit, une boutique</div>
+          <div class="banner wax">Toutes les boutiques d’Adjamé, livrées chez vous.</div>
+          <div class="grid">
+            <div class="card"><div class="img wax accent"></div><span class="price">12 500 F</span><span class="plus">+</span></div>
+            <div class="card"><div class="img wax teal"></div><span class="price">8 000 F</span><span class="plus">+</span></div>
+            <div class="card"><div class="img wax teal"></div><span class="price">15 000 F</span><span class="plus">+</span></div>
+            <div class="card"><div class="img wax"></div><span class="price">9 500 F</span><span class="plus">+</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="alt" id="comment">
+      <div class="wrap">
+        <div class="head">
+          <div class="eyebrow">Comment ça marche</div>
+          <h2>Commander à Adjamé sans vous déplacer.</h2>
+          <p>Une seule app pour toutes les boutiques du marché. Chaque boutique vous livre avec VITE.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="n" style="background:var(--primary)">1</div><h3>Choisissez</h3><p>Parcourez les rayons, les marchés et les boutiques vérifiées. Ajoutez au panier, même dans plusieurs boutiques.</p></div>
+          <div class="step"><div class="n" style="background:var(--accent)">2</div><h3>Payez par Mobile Money</h3><p>Selon la boutique, vous payez tout ou seulement un acompte à la commande. Le reste se règle à la livraison.</p></div>
+          <div class="step"><div class="n" style="background:var(--teal)">3</div><h3>Recevez chez vous</h3><p>Un livreur VITE récupère votre colis à la boutique. Suivez-le en direct et donnez votre code à la remise.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="boutiques">
+      <div class="wrap">
+        <div class="head">
+          <div class="eyebrow">Ce que vous trouvez</div>
+          <h2>Le plus grand marché d’Abidjan, bien rangé.</h2>
+          <p>Des centaines de boutiques et de grossistes, classés par rayon et par marché.</p>
+        </div>
+        <div class="bento">
+          <div class="tile big wax"><h3>Mode et pagnes</h3><p>Wax, robes, tenues traditionnelles, chaussures et sacs, directement chez les commerçants d’Adjamé.</p></div>
+          <div class="tile wax accent"><h3>Petits prix</h3><p>Les bonnes affaires du marché, en un coup d’œil.</p></div>
+          <div class="tile wax teal"><h3>Vente en gros</h3><p>Revendeurs : accédez aux prix de gros des grossistes vérifiés.</p></div>
+        </div>
+        <div style="margin-top:28px">
+          <div class="markets">
+            <span>Forum des marchés</span><span>Marché Gouro</span><span>Black Market (Roxy)</span><span>Marché de Bracodi</span><span>Marché Liberté</span><span>Adjamé Mosquée</span><span>Williamsville</span><span>220 Logements</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="alt" id="vendre">
+      <div class="wrap sell">
+        <div class="head" style="margin-bottom:0">
+          <div class="eyebrow">Commerçants d’Adjamé</div>
+          <h2>Vendez dans tout Abidjan, sans quitter votre boutique.</h2>
+          <p>Ouvrez votre boutique en ligne gratuitement. Nous nous occupons de la livraison avec VITE.</p>
+        </div>
+        <ul class="list">
+          <li><i>✓</i><div><b>Inscription gratuite</b><span>Pas de commission pour le moment. Votre boutique est vérifiée par notre équipe.</span></div></li>
+          <li><i>✓</i><div><b>Vous choisissez le paiement</b><span>Payé en entier ou avec un acompte, directement sur votre alias PI-SPI ou via Adjamé-Smart.</span></div></li>
+          <li><i>✓</i><div><b>La livraison part toute seule</b><span>Dès que le paiement est confirmé, un livreur VITE vient chercher le colis.</span></div></li>
+          <li><i>✓</i><div><b>Gérez tout simplement</b><span>Produits, stocks et commandes depuis l’app, et bientôt sur boutique.vite.ci.</span></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="cta wax">
+          <h2>Adjamé arrive chez vous.</h2>
+          <p>L’application Adjamé-Smart sera bientôt disponible sur Android et iPhone.</p>
+          <a class="pill" href="#app">Être prévenu au lancement</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span class="brand"><span class="mark" style="width:24px;height:24px;border-radius:7px;font-size:14px">A</span><span>Adjamé<span class="smart">Smart</span></span></span>
+      <span>Le marché d’Adjamé, livré par VITE.</span>
+      <span class="sp"></span>
+      <a href="https://vite.ci">vite.ci</a>
+      <span>© <span id="y">2026</span> Adjamé-Smart</span>
+    </div>
+  </footer>
+  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+</body>
+</html>
