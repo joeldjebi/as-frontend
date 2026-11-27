@@ -27,7 +27,9 @@ export default function MapPicker({ value, onChange }: { value: { lat: number; l
     if (!m || !value) return;
     if (!marker.current) marker.current = L.circleMarker([value.lat, value.lng], { radius: 11, color: '#fff', weight: 3, fillColor: '#0B6B4F', fillOpacity: 1 }).addTo(m);
     else marker.current.setLatLng([value.lat, value.lng]);
+    // Point choisi dans la liste (ou position) : la carte s'y centre
     if (m.getZoom() < 15) m.setView([value.lat, value.lng], 16);
+    else if (!m.getBounds().contains([value.lat, value.lng])) m.panTo([value.lat, value.lng]);
   }, [value]);
 
   return <div ref={el} className="map" />;
