@@ -6,14 +6,15 @@ import Login from './pages/Login';
 import Overview from './pages/Overview';
 import Orders from './pages/Orders';
 import Products from './pages/Products';
+import Settings from './pages/Settings';
 import Resellers from './pages/Resellers';
 import Shops from './pages/Shops';
 import Team from './pages/Team';
 import { useTheme } from './theme';
 import { Avatar, BrandMark, Icon, Segmented, ToastProvider } from './ui';
 
-export type Route = 'overview' | 'orders' | 'shops' | 'products' | 'resellers' | 'customers' | 'categories' | 'team';
-const HASH: Record<Route, string> = { overview: '', orders: 'commandes', shops: 'boutiques', products: 'produits', resellers: 'revendeurs', customers: 'clients', categories: 'categories', team: 'equipe' };
+export type Route = 'overview' | 'settings' | 'orders' | 'shops' | 'products' | 'resellers' | 'customers' | 'categories' | 'team';
+const HASH: Record<Route, string> = { overview: '', settings: 'reglages', orders: 'commandes', shops: 'boutiques', products: 'produits', resellers: 'revendeurs', customers: 'clients', categories: 'categories', team: 'equipe' };
 const fromHash = (): Route => (Object.entries(HASH).find(([, h]) => h && location.hash.startsWith(`#/${h}`))?.[0] as Route) ?? 'overview';
 export const go = (r: Route) => { location.hash = `/${HASH[r]}`; };
 
@@ -64,7 +65,7 @@ function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
         { r: 'categories', icon: 'overview', label: 'Catégories' },
       ],
     },
-    { section: 'Réglages', links: [{ r: 'team', icon: 'shield', label: 'Équipe' }] },
+    { section: 'Réglages', links: [{ r: 'team', icon: 'shield', label: 'Équipe' }, ...(me.staffRole === 'SUPER_ADMIN' ? [{ r: 'settings' as Route, icon: 'gear', label: 'Réglages' }] : [])] },
   ];
   return (
     <div className="shell">
@@ -110,6 +111,7 @@ function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
           {route === 'customers' && <Customers me={me} />}
           {route === 'categories' && <Categories me={me} />}
           {route === 'team' && <Team me={me} />}
+          {route === 'settings' && me.staffRole === 'SUPER_ADMIN' && <Settings />}
         </div>
       </main>
     </div>
