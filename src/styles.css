@@ -893,4 +893,4 @@ small.down { color: var(--green); }
 @media (max-width: 760px) { .form-grid { grid-template-columns: 1fr; } }
 .text-ok { color: var(--green); font-weight: 600; }
 .text-warn { color: var(--orange); font-weight: 600; }
-.card + .card { margin-top: 16px; }
+section.card + section.card { margin-top: 16px; }
