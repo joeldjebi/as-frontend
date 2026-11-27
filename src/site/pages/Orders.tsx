@@ -9,7 +9,7 @@ interface Order {
   goodsTotal: number; dueNow: number; dueOnDelivery: number; recipientName: string; recipientPhone: string; cancelReason: string | null;
   address: { label: string; address: string; landmark: string | null };
   payment: { mode: string; alias: string | null; payee: string; reference?: string | null; rejectedNote?: string | null };
-  vehicleType?: string; speed?: string;
+  vehicleType?: string; speed?: string; vehicleName?: string | null;
   delivery: { status?: string; trackingUrl?: string | null; price?: number | null; confirmationCode?: string | null; error?: string | null; driver?: { name: string; phone?: string | null; plate?: string | null } | null };
 }
 
@@ -119,7 +119,7 @@ export function OrderDetail({ id }: { id: string }) {
           {(o.status === 'IN_DELIVERY' || o.status === 'DELIVERED') && (
             <>
               {o.status === 'IN_DELIVERY' && d.status === 'PENDING' && <OffersPanel orderId={o.id} onAccepted={load} />}
-              <div className="gtitle">Livraison VITE · {deliveryLabel(o.vehicleType, o.speed)}</div>
+              <div className="gtitle">Livraison VITE · {deliveryLabel(o.vehicleType, o.speed, o.vehicleName)}</div>
               <div className="group on-bg">
                 <div className="cell"><span className="ico" style={{ background: 'var(--primary)' }}><Icon name="moto" size={17} /></span><div className="grow">{o.deliveryLabel ?? 'En livraison'}{!d.driver && <small>Un livreur va accepter la course</small>}</div></div>
                 {d.driver && <div className="cell"><span className="ico" style={{ background: 'var(--teal)' }}><Icon name="user" size={17} /></span><div className="grow">{d.driver.name}<small>{d.driver.plate ?? ''}</small></div>{d.driver.phone && <a className="btn tinted sm" href={`tel:${d.driver.phone}`}>Appeler</a>}</div>}

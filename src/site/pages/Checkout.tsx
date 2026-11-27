@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { api, cart, errText, fold, go, money, refreshMe, session, toast, useStore } from '../core';
 import MapPicker from '../MapPicker';
 import { Empty, Icon, Modal } from '../ui';
-import { DeliveryOption, SPEEDS, Speed, Vehicle, VEHICLES } from '../delivery';
+import { DeliveryOption, SPEEDS, Speed, Vehicle, VehicleInfo, vehicleHint, vehicleName } from '../delivery';
 
 interface Quote {
   shops: { shopId: string; shopName: string; goodsTotal: number; dueNow: number; dueOnDelivery: number; deliveryFeeEstimate: number | null; payment: { mode: string; payee: string } }[];
-  goodsTotal: number; dueNow: number; dueOnDelivery: number; deliveryFeeEstimate: number | null; deliveryOptions: DeliveryOption[];
+  goodsTotal: number; dueNow: number; dueOnDelivery: number; deliveryFeeEstimate: number | null; deliveryOptions: DeliveryOption[]; vehicles?: VehicleInfo[];
 }
 
 /** Finaliser : adresse (carte), destinataire, récapitulatif par boutique, confirmation */
@@ -81,14 +81,14 @@ export default function Checkout() {
 
           {(quote?.deliveryOptions?.length ?? 0) > 0 && (() => {
             const opts = quote!.deliveryOptions;
-            const vehicles = (Object.keys(VEHICLES) as Vehicle[]).filter((v) => opts.some((o) => o.vehicleType === v));
+            const vehicles = [...new Set(opts.map((o) => o.vehicleType))];
             const price = (sp: Speed) => opts.find((o) => o.vehicleType === vehicle && o.speed === sp)?.price;
             return (
               <>
                 <div className="gtitle">Livraison</div>
                 {vehicles.length > 1 && (
                   <div className="seg" style={{ marginBottom: 10 }}>
-                    {vehicles.map((v) => <button key={v} className={vehicle === v ? 'on' : ''} onClick={() => setVehicle(v)}>{VEHICLES[v].label}</button>)}
+                    {vehicles.map((v) => <button key={v} className={vehicle === v ? 'on' : ''} onClick={() => setVehicle(v)}>{vehicleName(v, quote!.vehicles)}</button>)}
                   </div>
                 )}
                 <div className="group on-bg">
@@ -100,7 +100,7 @@ export default function Checkout() {
                     </button>
                   ))}
                 </div>
-                <p className="gfoot">{VEHICLES[vehicle].hint}. Les frais de livraison sont payés en espèces au livreur. Un livreur peut proposer un autre prix : vous restez libre d’accepter, de refuser ou de faire votre offre.</p>
+                <p className="gfoot">{vehicleHint(vehicle, quote!.vehicles) ? `${vehicleHint(vehicle, quote!.vehicles)}. ` : ''}Les frais de livraison sont payés en espèces au livreur. Un livreur peut proposer un autre prix : vous restez libre d’accepter, de refuser ou de faire votre offre.</p>
               </>
             );
           })()}
