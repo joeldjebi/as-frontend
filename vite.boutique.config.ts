@@ -8,7 +8,8 @@ export default defineConfig({
   base: './',
   plugins: [react()],
   envDir: __dirname,
-  publicDir: false,
+  // Même dossier public que le back-office (politique de sécurité .htaccess, icône)
+  publicDir: resolve(__dirname, 'public'),
   server: { port: 5175, fs: { allow: [__dirname] } },
   build: { outDir: resolve(__dirname, 'dist-boutique'), emptyOutDir: true },
 });
