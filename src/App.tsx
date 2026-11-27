@@ -4,6 +4,7 @@ import Categories from './pages/Categories';
 import Customers from './pages/Customers';
 import Login from './pages/Login';
 import Overview from './pages/Overview';
+import Orders from './pages/Orders';
 import Products from './pages/Products';
 import Resellers from './pages/Resellers';
 import Shops from './pages/Shops';
@@ -11,8 +12,8 @@ import Team from './pages/Team';
 import { useTheme } from './theme';
 import { Avatar, BrandMark, Icon, Segmented, ToastProvider } from './ui';
 
-export type Route = 'overview' | 'shops' | 'products' | 'resellers' | 'customers' | 'categories' | 'team';
-const HASH: Record<Route, string> = { overview: '', shops: 'boutiques', products: 'produits', resellers: 'revendeurs', customers: 'clients', categories: 'categories', team: 'equipe' };
+export type Route = 'overview' | 'orders' | 'shops' | 'products' | 'resellers' | 'customers' | 'categories' | 'team';
+const HASH: Record<Route, string> = { overview: '', orders: 'commandes', shops: 'boutiques', products: 'produits', resellers: 'revendeurs', customers: 'clients', categories: 'categories', team: 'equipe' };
 const fromHash = (): Route => (Object.entries(HASH).find(([, h]) => h && location.hash.startsWith(`#/${h}`))?.[0] as Route) ?? 'overview';
 export const go = (r: Route) => { location.hash = `/${HASH[r]}`; };
 
@@ -34,14 +35,17 @@ export default function App() {
 function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
   const [route, setRoute] = useState<Route>(fromHash());
   const [theme, setTheme] = useTheme();
-  const [pending, setPending] = useState({ shops: 0, resellers: 0, products: 0 });
+  const [pending, setPending] = useState({ shops: 0, resellers: 0, products: 0, orders: 0 });
   useEffect(() => {
     const on = () => setRoute(fromHash());
     window.addEventListener('hashchange', on);
     return () => window.removeEventListener('hashchange', on);
   }, []);
   useEffect(() => {
-    const load = () => api<{ shopsPending: number; resellersPending: number; productsReported: number }>('/admin/dashboard').then((d) => setPending({ shops: d.shopsPending, resellers: d.resellersPending, products: d.productsReported })).catch(() => {});
+    const load = () => {
+      api<{ shopsPending: number; resellersPending: number; productsReported: number }>('/admin/dashboard').then((d) => setPending((p) => ({ ...p, shops: d.shopsPending, resellers: d.resellersPending, products: d.productsReported }))).catch(() => {});
+      api<{ counts: { toConfirm: number; toDeliver: number } }>('/orders/admin?status=PAYMENT_DECLARED').then((d) => setPending((p) => ({ ...p, orders: d.counts.toConfirm + d.counts.toDeliver }))).catch(() => {});
+    };
     load();
     const t = window.setInterval(load, 30_000);
     window.addEventListener('pending:changed', load);
@@ -52,6 +56,7 @@ function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
     {
       section: 'Marketplace',
       links: [
+        { r: 'orders', icon: 'receipt', label: 'Commandes', count: pending.orders || undefined },
         { r: 'shops', icon: 'building', label: 'Boutiques', count: pending.shops || undefined },
         { r: 'products', icon: 'box', label: 'Produits', count: pending.products || undefined },
         { r: 'resellers', icon: 'tag', label: 'Revendeurs', count: pending.resellers || undefined },
@@ -98,6 +103,7 @@ function Shell({ me, onLogout }: { me: User; onLogout: () => void }) {
       <main className="main">
         <div className="page">
           {route === 'overview' && <Overview />}
+          {route === 'orders' && <Orders me={me} />}
           {route === 'shops' && <Shops me={me} />}
           {route === 'products' && <Products me={me} />}
           {route === 'resellers' && <Resellers me={me} />}
