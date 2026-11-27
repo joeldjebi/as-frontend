@@ -44,7 +44,7 @@ export const ORDER_STATUS: Record<Status, [string, string]> = {
 
 const canPay = (me: User) => me.staffRole === 'SUPER_ADMIN' || me.staffRole === 'SUPPORT';
 
-/** Équipe : commandes, confirmation des paiements reçus par Adjamé-Smart, relance des livraisons LETO */
+/** Équipe : commandes, confirmation des paiements reçus par Adjamé-Smart, relance des livraisons VITE */
 export default function Orders({ me }: { me: User }) {
   const [filter, setFilter] = useState<Filter>('confirm');
   const [data, setData] = useState<Data | null>(null);
@@ -131,14 +131,14 @@ function OrderSheet({ o, me, onClose, onChanged }: { o: Order; me: User; onClose
       </div>
       {allowed && o.status === 'PAYMENT_DECLARED' && (
         <div className="li-actions">
-          <button className="btn" disabled={busy} onClick={() => run('confirm-payment', 'Paiement confirmé · course LETO demandée')}>Paiement reçu</button>
+          <button className="btn" disabled={busy} onClick={() => run('confirm-payment', 'Paiement confirmé · course VITE demandée')}>Paiement reçu</button>
           <button className="btn secondary" disabled={busy} onClick={() => setAsk('reject-payment')}>Pas reçu</button>
           <small className="muted grow">{p.mode === 'DIRECT' ? 'Payé à la boutique : elle confirme normalement elle-même.' : `Vérifiez la réception de ${formatMoney(o.dueNow)} (réf. ${p.reference}).`}</small>
         </div>
       )}
       {allowed && o.status === 'PAID' && (
         <div className="li-actions">
-          <button className="btn" disabled={busy} onClick={() => run('retry-delivery', 'Course LETO demandée')}>Lancer la livraison</button>
+          <button className="btn" disabled={busy} onClick={() => run('retry-delivery', 'Course VITE demandée')}>Lancer la livraison</button>
           {o.delivery?.error && <small className="muted grow">{o.delivery.error}</small>}
         </div>
       )}
@@ -165,7 +165,7 @@ function OrderSheet({ o, me, onClose, onChanged }: { o: Order; me: User; onClose
         </div>
       </div>
       <div>
-        <div className="section-title">Livraison LETO</div>
+        <div className="section-title">Livraison VITE</div>
         <div className="group">
           <dl className="kv">
             <dt>Adresse</dt><dd>{[o.address.label, o.address.address, o.address.landmark].filter(Boolean).join(' · ')}</dd>

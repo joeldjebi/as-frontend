@@ -61,7 +61,7 @@ export const ICON_PATHS: Record<string, string> = {
   truck: 'M2.5 6h11.5v10H2.5z M14 9.5h4l3.5 3.5v3H14z M6.5 18.5a2 2 0 100-4 2 2 0 000 4z M17.5 18.5a2 2 0 100-4 2 2 0 000 4z',
 };
 
-/** Symbole LETO : le soleil (rayons fins blancs), sur la tuile noire. Source : brand/sun-dark.svg */
+/** Symbole VITE : le soleil (rayons fins blancs), sur la tuile noire. Source : brand/sun-dark.svg */
 export function BrandMark({ size = 20 }: { size?: number }) {
   return (
     <svg aria-hidden="true" width={size} height={size} viewBox="0 0 64 64" style={{ display: 'block' }}>

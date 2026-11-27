@@ -25,7 +25,7 @@ export default function Overview() {
         <Stat icon="overview" label="Catégories" value={d.categories} foot="catégories principales actives" onClick={() => go('categories')} />
       </div>
       <Card title="Phases 1 et 2" pad>
-        <p className="muted" style={{ margin: 0 }}>Boutiques, revendeurs, catégories, produits et recherche. Les commandes multi-boutiques et la livraison LETO arrivent en phase 3.</p>
+        <p className="muted" style={{ margin: 0 }}>Boutiques, revendeurs, catégories, produits et recherche. Les commandes multi-boutiques et la livraison VITE arrivent en phase 3.</p>
       </Card>
     </>
   );
